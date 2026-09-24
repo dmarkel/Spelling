@@ -341,7 +341,9 @@ export function render(root, ctx, { mode = 'chapter', chapterId }) {
     updateDots();
     preload([{ who: 'coach', text: word() }, { who: 'coach', text: entry().sentence }]);
     if (location.hostname === 'localhost') window.__sqWord = word(); // test hook for local previews only
-    prompt(intro);
+    // Give the screen (and the iPad's audio) a moment to settle before saying the word.
+    const at = idx;
+    wait(450).then(() => { if (alive && idx === at && !busy) prompt(intro); });
   }
 
   async function finish() {

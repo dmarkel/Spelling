@@ -58,20 +58,39 @@ export function preload(lines) {
   }
 }
 
+// Wait (briefly) for the audio clock to be running. iPads can report a paused context right
+// after a screen change or interruption; starting a clip then makes it silently drop.
+async function ready(c) {
+  if (c.state === 'running') return true;
+  try {
+    await Promise.race([c.resume(), new Promise((r) => setTimeout(r, 1500))]);
+  } catch { /* resume refused outside a tap */ }
+  return c.state === 'running';
+}
+
 // Each player resolves true when the line finished, false when it was interrupted.
-function playBuffer(buffer) {
+// "Finished" is judged by the audio clock itself, so a clip is never cut off early,
+// even on browsers that forget to fire onended.
+async function playBuffer(buffer, stillWanted) {
+  const c = audioContext();
+  await ready(c);
+  if (!stillWanted()) return false; // something else started speaking while we waited
   return new Promise((resolve) => {
-    const c = audioContext();
     const src = c.createBufferSource();
     src.buffer = buffer;
     src.connect(c.destination);
+    const startAt = c.currentTime + 0.06; // a hair of lead-in so the first sound isn't clipped
+    const endAt = startAt + buffer.duration;
+    const giveUp = Date.now() + (buffer.duration * 3 + 4) * 1000; // clock frozen for good: move on
     let settled = false;
-    // Some browsers (and iPads after an interruption) never fire onended, so don't wait on it forever.
-    const guard = setTimeout(() => done(true), (buffer.duration + 0.6) * 1000);
-    const done = (ok) => { if (!settled) { settled = true; clearTimeout(guard); resolve(ok); } };
+    let poll = null;
+    const done = (ok) => { if (!settled) { settled = true; clearInterval(poll); resolve(ok); } };
     src.onended = () => done(true);
+    poll = setInterval(() => {
+      if (c.currentTime >= endAt + 0.05 || Date.now() > giveUp) done(true);
+    }, 200);
     current = { stop: () => { done(false); try { src.stop(); } catch { /* already stopped */ } } };
-    src.start();
+    src.start(startAt);
   });
 }
 
@@ -121,7 +140,7 @@ export async function say(text, who = 'narrator') {
       try {
         const buf = await bufferFor(url);
         if (my !== token) return false;
-        return await playBuffer(buf);
+        return await playBuffer(buf, () => my === token);
       } catch { /* try once more */ }
     }
     return true;
