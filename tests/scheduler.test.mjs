@@ -56,3 +56,9 @@ test('spellOut reads letters and apostrophes', () => {
   assert.equal(spellOut("didn't"), 'D. I. D. N. apostrophe. T.');
   assert.deepEqual(lettersOf("It's"), ['i', 't', "'", 's']);
 });
+
+test('stats are looked up by normalized word', () => {
+  const chs = [{ id: 'a', words: [w("I'm")] }, { id: 'b', words: [w('cat')] }];
+  const camp = buildTrainingCamp({ allChapters: chs, stats: { "i'm": stat(1, 2) }, size: 5 });
+  assert.deepEqual(camp.map((r) => r.entry.word), ["I'm"]);
+});

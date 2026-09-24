@@ -1,0 +1,98 @@
+// Comic-style story scene: voiced lines, one speech bubble at a time.
+import { h, clear, wait } from '../ui/el.js';
+import { avatar } from '../ui/avatar.js';
+import { chapterById } from '../game.js';
+import { imageUrl } from '../assets.js';
+import { say, stop, preload } from '../audio.js';
+import { splitDirection } from '../engine/text.js';
+import { SPEAKERS } from '../../data/voices.js';
+import { sfx } from '../sfx.js';
+
+const OFFSTAGE = new Set(['narrator', 'coach']);
+
+export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
+  const { player, profile } = ctx;
+  const chapter = chapterById(player, profile, chapterId);
+  if (!chapter) { ctx.go('map'); return; }
+  const lines = chapter[part] || [];
+  preload(lines);
+
+  const next = () => (part === 'intro'
+    ? ctx.go('challenge', { mode: 'chapter', chapterId })
+    : ctx.go('results', { chapterId, outcome }));
+  if (!lines.length) { next(); return; }
+
+  // Cast: the hero on the left, everyone else who speaks (or is listed) on the right.
+  const others = [...new Set([...(chapter.cast || []), ...lines.map((l) => l.who)])]
+    .filter((w) => !OFFSTAGE.has(w) && w !== player.id);
+  const cast = [player.id, ...others].slice(0, 5);
+  const size = cast.length > 3 ? 120 : 150;
+  const actors = new Map(cast.map((who) => [who, h('div', { class: 'actor', dataset: { who } }, avatar(who, { pose: 'wave', size }))]));
+
+  const bg = imageUrl(chapter.scene?.img);
+  const [c1, c2] = chapter.scene?.colors || ['#fff', '#eee'];
+  const stage = h('div', { class: 'stage-actors' }, [...actors.values()]);
+  const bubbleSlot = h('div', { class: 'bubble-slot' });
+  const nextBtn = h('button', { class: 'btn btn-primary btn-big next-btn', 'aria-label': 'Next' }, '▶');
+
+  const view = h('section', {
+    class: 'screen story-screen',
+    style: { '--c1': c1, '--c2': c2, backgroundImage: bg ? `url(${bg})` : '' },
+  },
+  bg ? null : h('div', { class: 'scene-emoji', 'aria-hidden': 'true' }, chapter.scene?.emoji || '📖'),
+  h('div', { class: 'story-top' },
+    h('button', { class: 'btn btn-icon btn-ghost', 'aria-label': 'Back to map', onclick: () => { sfx.back(); ctx.go('map'); } }, '✕'),
+    h('div', { class: 'story-title card' },
+      h('div', { class: 'kicker' }, part === 'intro' ? chapter.pattern : 'The End'),
+      h('div', {}, chapter.title)),
+    h('div', { class: 'spacer' }),
+    h('button', { class: 'btn btn-ghost', onclick: () => { stop(); done = true; next(); } }, 'Skip ⏭'),
+  ),
+  stage,
+  h('div', { class: 'story-bottom' }, bubbleSlot, nextBtn));
+  root.append(view);
+
+  let i = -1;
+  let done = false;
+  let advanceTimer = null;
+
+  async function show(n) {
+    clearTimeout(advanceTimer);
+    if (n >= lines.length) { done = true; next(); return; }
+    i = n;
+    const line = lines[n];
+    const s = SPEAKERS[line.who] || SPEAKERS.narrator;
+    const { direction, spoken } = splitDirection(line.text);
+
+    for (const [who, el] of actors) {
+      el.classList.toggle('speaking', who === line.who);
+      el.classList.toggle('quiet', !OFFSTAGE.has(line.who) && who !== line.who);
+    }
+    clear(bubbleSlot).append(h('div', {
+      class: `bubble ${OFFSTAGE.has(line.who) ? 'narration' : ''}`,
+      style: { '--who': s.color },
+    },
+    OFFSTAGE.has(line.who) ? null : h('span', { class: 'who', style: { background: s.color } }, s.name),
+    direction ? h('span', { class: 'direction' }, `(${direction})`) : null,
+    spoken));
+    nextBtn.classList.remove('ready');
+
+    const started = Date.now();
+    const finished = await say(line.text, line.who);
+    if (done || i !== n) return;
+    nextBtn.classList.add('ready');
+    if (finished) {
+      const minRead = spoken.length * 45;
+      const extra = Math.max(700, minRead - (Date.now() - started));
+      advanceTimer = setTimeout(() => { if (!done && i === n) show(n + 1); }, extra);
+    }
+  }
+
+  const advance = () => { if (done) return; sfx.click(); stop(); show(i + 1); };
+  nextBtn.addEventListener('click', (e) => { e.stopPropagation(); advance(); });
+  stage.addEventListener('click', advance);
+  bubbleSlot.addEventListener('click', advance);
+
+  wait(350).then(() => show(0));
+  return () => { done = true; clearTimeout(advanceTimer); };
+}

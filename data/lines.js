@@ -34,6 +34,7 @@ export const LINES = {
   campEmpty: ['Nothing to practice yet! Play a chapter first, and any tricky words will show up here.'],
   teacherList: ['These words are from your teacher\'s list. Let\'s practice them!'],
   welcome: ['Who is playing today?'],
+  locked: ['Finish the chapter before this one to unlock it!'],
 };
 
 // Cheers said by the other sibling on the results screen, keyed by who is being cheered.
