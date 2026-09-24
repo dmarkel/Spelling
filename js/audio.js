@@ -18,6 +18,12 @@ export function audioContext() {
   return ctx;
 }
 
+// iPads pause audio after app switches, screen locks or notifications. Resume whenever we can.
+export function resume() {
+  const c = audioContext();
+  if (c && c.state !== 'running') c.resume().catch(() => {});
+}
+
 // Must be called from a user gesture (first tap).
 export function unlock() {
   try {
@@ -60,7 +66,9 @@ function playBuffer(buffer) {
     src.buffer = buffer;
     src.connect(c.destination);
     let settled = false;
-    const done = (ok) => { if (!settled) { settled = true; resolve(ok); } };
+    // Some browsers (and iPads after an interruption) never fire onended, so don't wait on it forever.
+    const guard = setTimeout(() => done(true), (buffer.duration + 0.6) * 1000);
+    const done = (ok) => { if (!settled) { settled = true; clearTimeout(guard); resolve(ok); } };
     src.onended = () => done(true);
     current = { stop: () => { done(false); try { src.stop(); } catch { /* already stopped */ } } };
     src.start();
@@ -108,6 +116,7 @@ export async function say(text, who = 'narrator') {
   if (url) {
     const c = audioContext();
     if (!c) return true;
+    resume();
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const buf = await bufferFor(url);

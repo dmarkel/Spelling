@@ -1,7 +1,7 @@
 // Boot + router. Each screen module exports render(root, ctx, params) and may return a cleanup function.
 import { createStore } from './engine/storage.js';
 import { loadManifests } from './assets.js';
-import { unlock, stop } from './audio.js';
+import { unlock, resume, stop } from './audio.js';
 import { PLAYERS } from './game.js';
 import { clear } from './ui/el.js';
 
@@ -44,8 +44,10 @@ const ctx = {
 };
 
 // iPad audio must be unlocked by a real tap.
+// After that, every tap re-wakes audio in case the iPad paused it.
 let unlocked = false;
-document.addEventListener('pointerdown', () => { if (!unlocked) { unlocked = true; unlock(); } }, { capture: true });
+document.addEventListener('pointerdown', () => { if (!unlocked) { unlocked = true; unlock(); } else resume(); }, { capture: true });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') resume(); });
 
 async function boot() {
   await loadManifests();

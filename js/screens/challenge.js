@@ -110,13 +110,14 @@ export function render(root, ctx, { mode = 'chapter', chapterId }) {
     node.append(h('div', { class: 'mini-bubble pop-in', style: { '--who': SPEAKERS[who]?.color } }, text));
   }
 
+  // Always the word first, then the sentence, then the word again, so it's clear which word to spell.
   function speakWord() {
-    seq?.cancel();
-    say(word(), 'coach');
+    prompt();
   }
   function speakSentence() {
     seq?.cancel();
-    say(entry().sentence, 'coach');
+    seq = sequence();
+    seq.run([{ who: 'coach', text: entry().sentence }, { who: 'coach', text: word() }]);
   }
   function prompt(intro = []) {
     seq?.cancel();
