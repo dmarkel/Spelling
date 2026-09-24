@@ -1,5 +1,5 @@
 // Justin's quest: "Justin, Esq. and the People v. Stabby McGee".
-// One grown-up chapter of real legal words, easy at the start and nearly impossible by the end.
+// One grown-up chapter of real legal words.
 // Justin needs `passRatio` of the words right on the first try, or the case is lost (see outroFail).
 
 export default {
@@ -10,12 +10,12 @@ export default {
   sibling: 'ashley',
   reviewSlots: 0,
   campSize: 8,
-  ordered: true, // words go from easy to impossible, so they are not shuffled
+  ordered: true, // words are played in the order listed
   chapters: [
     {
       id: 'j1',
       title: 'The People v. Stabby McGee',
-      pattern: 'Legal words, easy to impossible',
+      pattern: 'Legal words',
       tip: 'Break long legal words into chunks, and remember many of them come from Latin.',
       passRatio: 0.6,
       villain: { who: 'judge', emoji: '👩‍⚖️' },
@@ -31,7 +31,7 @@ export default {
         { who: 'justin', text: '(gulping) I was not going to ask about the name.' },
         { who: 'judge', text: 'Order! Counselor, your client faces the chair. Make your case, and spell it correctly. This court does not tolerate typos.' },
         { who: 'justin', text: '(to himself) Everyone deserves a defense. Even a guy named Stabby. Right? ...Right?' },
-        { who: 'narrator', text: 'The words start easy. They will not stay easy. Get at least 8 of 12 right on the first try, or Stabby gets the chair.' },
+        { who: 'narrator', text: 'Spell your case. Get at least 8 of 12 right on the first try, or Stabby gets the chair.' },
         { who: 'stabby', text: 'No pressure, pal. I trust you. Mostly.' },
       ],
       outro: [
