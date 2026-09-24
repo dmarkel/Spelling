@@ -16,14 +16,15 @@ const PHOTOS = path.join(ROOT, 'private', 'photos');
 const MANIFEST = path.join(ROOT, 'data', 'image-manifest.json');
 const REFS = path.join(ROOT, 'private', 'refs'); // full-size cartoon portraits reused for extra poses (gitignored)
 
-const STYLE = 'Bright, friendly 2D cartoon illustration in a modern children\'s picture-book style: bold clean dark-purple outlines, soft cel shading, cheerful saturated colors, big expressive eyes, warm and cute. No text, no letters, no words, no border, no frame.';
+// Art direction: bright kids' anime. Change here and re-run with --force to restyle everything.
+const STYLE = 'Flat 2D Japanese anime style like a cheerful kids\' anime TV show (think Pokemon or Sailor Moon era cel animation): thick clean black line art, flat cel-shaded colors with one shadow tone, very large shiny anime eyes, tiny simple nose, simple rounded face, slightly bigger head proportions. Absolutely NOT realistic, NOT painterly, NOT 3D, no photographic detail or skin texture. No text, no letters, no words, no border, no frame.';
 const CHAR = `${STYLE} A single full-body character, centered, feet visible, on a fully transparent background with no ground shadow and no scenery.`;
-const SCENE = `${STYLE} A wide background scene for a storybook app with NO people, NO characters and NO animals in it. Keep the lower third fairly simple and uncluttered so characters can stand in front of it.`;
+const SCENE = `${STYLE} A wide anime background art scene (painterly, warm light, like a cozy slice-of-life anime) with NO people, NO characters and NO animals in it. Keep the lower third fairly simple and uncluttered so characters can stand in front of it.`;
 
 const KIDS = {
   emma: {
     photo: 'emma.jpg',
-    look: 'a 9-year-old girl with long straight black hair and full straight-cut bangs, wearing a lavender t-shirt, a purple plaid skirt, pink socks, navy sneakers, and a mint-green backpack',
+    look: 'a cheerful 9-year-old girl with light skin, dark brown eyes, East Asian features, long straight black hair with full straight-cut bangs, wearing a lavender t-shirt, a purple plaid skirt, pink socks, navy sneakers, and a mint-green backpack',
     poses: {
       wave: 'waving hello with a big happy smile',
       cheer: 'jumping for joy with both arms up, holding a sparkly magic notebook, huge grin',
@@ -33,7 +34,7 @@ const KIDS = {
   },
   parker: {
     photo: 'parker.jpg',
-    look: 'a 7-year-old boy with short dark hair and a big gap-toothed smile, wearing a royal blue polo shirt, gray shorts, white socks, red-and-blue superhero sneakers, and a red backpack',
+    look: 'an energetic 7-year-old boy with light skin, dark brown eyes, East Asian features, short dark buzz-cut hair, a big bright smile with a full row of neat teeth (no gaps, no missing teeth), wearing a royal blue polo shirt, gray shorts, white socks, red-and-blue superhero sneakers, and a red backpack',
     poses: {
       wave: 'waving hello with a big happy smile',
       cheer: 'jumping in victory, raising a toy wooden knight sword high, huge grin',
@@ -84,10 +85,10 @@ const jobs = [];
 for (const [id, kid] of Object.entries(KIDS)) {
   const [firstPose, ...rest] = Object.keys(kid.poses);
   jobs.push({ name: `${id}-${firstPose}`, kind: 'photo', ref: path.join(PHOTOS, kid.photo),
-    prompt: `Turn this child into a cartoon character for a kids' spelling game. Keep their face shape, hairstyle, skin tone and likeness, drawn as ${kid.look}. Pose: ${kid.poses[firstPose]}. ${CHAR}` });
+    prompt: `Use this photo only as a loose reference for hairstyle, clothing colors and general look. Completely redraw the child as an original anime character: ${kid.look}. Pose: ${kid.poses[firstPose]}. ${CHAR}` });
   for (const pose of rest) {
     jobs.push({ name: `${id}-${pose}`, kind: 'ref', ref: path.join(REFS, `${id}-${firstPose}.png`), after: `${id}-${firstPose}`,
-      prompt: `The same cartoon character as in this image (${kid.look}), keeping the exact same art style, face, hair, clothes and colors. New pose: ${kid.poses[pose]}. ${CHAR}` });
+      prompt: `The same anime character as in this image (${kid.look}), keeping the exact same art style, face, hair, clothes and colors. New pose: ${kid.poses[pose]}. ${CHAR}` });
   }
 }
 for (const [name, desc] of Object.entries(CAST)) jobs.push({ name, kind: 'char', prompt: `${desc}. ${CHAR}` });
@@ -153,6 +154,7 @@ async function run(job, key) {
   const buf = await withRetry(() => callImages(key, job));
   writeFileSync(png, buf);
   toWebp(png, webp, job.kind);
+  if (job.kind !== 'scene') execFileSync('python3', [path.join(ROOT, 'scripts', 'trim-art.py'), webp]);
   console.log(`  ✓ ${job.name}`);
 }
 

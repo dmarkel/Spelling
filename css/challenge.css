@@ -31,8 +31,8 @@
 
 .ch-stage { grid-area: stage; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
 .ch-villain, .ch-hero { position: relative; display: flex; flex-direction: column; align-items: center; }
-.ch-villain .avatar { width: clamp(110px, 16vh, 170px) !important; height: clamp(110px, 16vh, 170px) !important; }
-.ch-hero .avatar { width: clamp(100px, 14vh, 150px) !important; height: clamp(100px, 14vh, 150px) !important; }
+.ch-villain .avatar { width: clamp(120px, 20vh, 220px) !important; height: clamp(120px, 20vh, 220px) !important; }
+.ch-hero .avatar { width: clamp(110px, 18vh, 200px) !important; height: clamp(110px, 18vh, 200px) !important; }
 .scene-badge {
   width: clamp(110px, 16vh, 160px); aspect-ratio: 1; border-radius: 50%;
   display: grid; place-items: center; font-size: clamp(3.5rem, 8vh, 5rem);

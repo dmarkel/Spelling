@@ -85,6 +85,7 @@
   display: flex; align-items: flex-end; justify-content: space-around; gap: 8px;
   padding-bottom: 8px;
 }
+.stage-actors .avatar { width: min(28vh, 23vw) !important; height: min(28vh, 23vw) !important; }
 .actor { transition: transform 0.3s, filter 0.3s, opacity 0.3s; transform-origin: bottom center; }
 .actor.speaking { transform: scale(1.18) translateY(-6px); z-index: 2; }
 .actor.speaking .avatar { animation: bob 1.4s ease-in-out infinite; }
