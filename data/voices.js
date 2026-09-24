@@ -1,9 +1,12 @@
 // Who can speak, how they look in speech bubbles, and how OpenAI TTS should voice them.
-// `voice` + `style` are only used by scripts/generate-audio.mjs.
+// `voice` + `style` are only used by scripts/generate-audio.mjs, which also adds ACCENT and PACE to every line.
 // `pitch`/`rate` tune the iPad's built-in voice when an mp3 is missing.
 
+export const ACCENT = 'Speak with a natural, friendly General American English accent, like a voice actor from the United States. Never use a British accent.';
+export const PACE = 'Speak at a slow, relaxed pace, noticeably slower than normal conversation, with clear pauses between phrases so young kids can easily follow.';
+
 export const SPEAKERS = {
-  narrator: { name: 'Narrator', color: '#5b4b8a', voice: 'fable', pitch: 1, rate: 0.95,
+  narrator: { name: 'Narrator', color: '#5b4b8a', voice: 'marin', pitch: 1, rate: 0.95,
     style: 'Warm, playful storybook narrator reading to kids aged 7 to 10. Expressive but clear, with gentle dramatic pauses.' },
   coach: { name: 'Coach', color: '#2a7a5a', voice: 'coral', pitch: 1.05, rate: 0.85,
     style: 'Kind, encouraging reading teacher. Speak slowly and very clearly so a child can hear every sound. Upbeat, never disappointed.' },

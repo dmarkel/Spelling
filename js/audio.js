@@ -85,7 +85,7 @@ function speakFallback(text, who) {
     const v = pickVoice();
     if (v) u.voice = v;
     u.lang = 'en-US';
-    u.rate = s.rate ?? 1;
+    u.rate = (s.rate ?? 1) * 0.88; // a touch slower than normal for young listeners
     u.pitch = s.pitch ?? 1;
     let settled = false;
     const done = (ok) => { if (!settled) { settled = true; clearTimeout(guard); resolve(ok); } };

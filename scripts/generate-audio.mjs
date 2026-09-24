@@ -3,22 +3,25 @@
 //   node scripts/generate-audio.mjs --dry-run  # just count
 //   node scripts/generate-audio.mjs --force    # regenerate everything
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { ROOT, requireKey, loadEnv, flags, pool, withRetry } from './lib/env.mjs';
 import { collectLines } from './lib/lines.mjs';
-import { SPEAKERS } from '../data/voices.js';
+import { SPEAKERS, ACCENT, PACE } from '../data/voices.js';
 import { splitDirection } from '../js/engine/text.js';
 
 const OUT = path.join(ROOT, 'assets', 'audio');
 const MANIFEST = path.join(ROOT, 'data', 'audio-manifest.json');
-const fileFor = (key) => `${createHash('sha1').update(key).digest('hex').slice(0, 16)}.mp3`;
+// Bump VOICE_VERSION whenever voices or delivery change: new file names stop iPads from replaying cached old audio.
+const VOICE_VERSION = 'v2-american-slow';
+const fileFor = (key) => `${createHash('sha1').update(`${VOICE_VERSION}|${key}`).digest('hex').slice(0, 16)}.mp3`;
 
 function instructionsFor({ who, kind }, direction) {
   const s = SPEAKERS[who] || SPEAKERS.narrator;
-  if (kind === 'word') return `${s.style} You are giving a spelling test. Say this single word once, clearly and naturally, with no extra words.`;
-  if (kind === 'letters') return `${s.style} Spell out these letters one at a time, slowly and clearly, with a short pause between each letter. Say "apostrophe" where written.`;
-  return direction ? `${s.style} Deliver this line ${direction}.` : s.style;
+  const base = `${s.style} ${ACCENT} ${PACE}`;
+  if (kind === 'word') return `${base} You are giving a spelling test. Say this single word once, slowly and clearly, with no extra words.`;
+  if (kind === 'letters') return `${base} Spell out these letters one at a time, slowly, with a clear pause between each letter. Say "apostrophe" where written.`;
+  return direction ? `${base} Deliver this line ${direction}.` : base;
 }
 
 async function speak(key, line) {
@@ -32,6 +35,7 @@ async function speak(key, line) {
       voice: (SPEAKERS[line.who] || SPEAKERS.narrator).voice,
       input: spoken,
       instructions: instructionsFor(line, direction),
+      speed: line.kind === 'line' ? 0.9 : 0.85,
       response_format: 'mp3',
     }),
   });
@@ -67,7 +71,10 @@ if (!flags['dry-run'] && todo.length) {
   console.log(`Generated ${done}, failed ${failed}.`);
 }
 
-// The manifest only lists files that exist, so the app falls back to the device voice for the rest.
+// Remove recordings from older voice versions, then list only files that exist
+// (the app falls back to the device voice for anything missing).
+const wanted = new Set(lines.map((l) => fileFor(`${l.who}|${l.text}`)));
+for (const f of readdirSync(OUT)) if (f.endsWith('.mp3') && !wanted.has(f)) unlinkSync(path.join(OUT, f));
 const have = new Set(readdirSync(OUT));
 const manifest = {};
 for (const l of lines) {
