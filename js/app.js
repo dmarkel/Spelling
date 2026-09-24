@@ -58,7 +58,7 @@ async function screenshotRoute() {
   const [screen, player, chapterId, extra] = new URLSearchParams(location.search).get('shot').split(':');
   if (player) ctx.setPlayer(player);
   const outcome = { stars: 2, firstTry: 4, total: 6, newStickers: [{ id: 'e1', emoji: '💌', name: 'Mystery Note' }] };
-  const params = { chapterId, mode: 'chapter', part: 'intro', outcome, kid: player };
+  const params = { chapterId, mode: 'chapter', part: extra === 'outro' || extra === 'lost' ? 'outro' : 'intro', outcome: { ...outcome, passed: extra !== 'lost' }, kid: player };
   if (screen === 'parent') (await import('./screens/parent.js')).unlockForScreenshots?.();
   await ctx.go(screen, params);
   if (extra === 'miss') {

@@ -25,9 +25,10 @@ const byTrouble = (stats) => (x, y) => {
 };
 
 // Every word of the chapter, plus a few trouble words (missed and still in a low box) from other chapters.
-export function buildChallenge({ chapter, allChapters, stats, reviewSlots = 0, rand = Math.random }) {
+export function buildChallenge({ chapter, allChapters, stats, reviewSlots = 0, ordered = false, rand = Math.random }) {
   const own = new Set(chapter.words.map(key));
-  const round = shuffle(chapter.words.map((entry) => ({ entry, chapterId: chapter.id, review: false })), rand);
+  const words = chapter.words.map((entry) => ({ entry, chapterId: chapter.id, review: false }));
+  const round = ordered ? words : shuffle(words, rand);
 
   const seen = new Set(own);
   const review = allEntries(allChapters)

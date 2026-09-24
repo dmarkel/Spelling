@@ -1,6 +1,7 @@
 // Collects every line the game can speak, so each gets a pre-generated mp3.
 import emma from '../../data/emma.js';
 import parker from '../../data/parker.js';
+import justin from '../../data/justin.js';
 import { LINES, CHEERS } from '../../data/lines.js';
 import { customChapter, campChapter } from '../../js/game.js';
 import { emptyProfile } from '../../js/engine/progress.js';
@@ -15,11 +16,11 @@ export function collectLines() {
     if (!out.has(key)) out.set(key, { who, text, kind });
   };
 
-  for (const p of [emma, parker]) {
+  for (const p of [emma, parker, justin]) {
     const fake = { ...emptyProfile(), custom: [{ word: 'x' }] };
     const specials = [customChapter(p, fake), campChapter(p, emptyProfile())];
     for (const ch of [...p.chapters, ...specials]) {
-      for (const part of ['intro', 'outro', 'hit', 'miss']) for (const l of ch[part] || []) add(l.who, l.text);
+      for (const part of ['intro', 'outro', 'outroFail', 'hit', 'miss']) for (const l of ch[part] || []) add(l.who, l.text);
       add('coach', ch.tip);
       for (const w of ch.words || []) {
         add('coach', w.word, 'word');

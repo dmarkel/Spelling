@@ -1,6 +1,6 @@
 // Offline support. Code and data: network first (so updates show up), cache as fallback.
 // Images, audio and fonts: cache first (they never change once generated).
-const VERSION = 'sq-v5';
+const VERSION = 'sq-v6';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
   'css/base.css', 'css/screens.css', 'css/challenge.css',
@@ -10,7 +10,7 @@ const SHELL = [
   'js/ui/el.js', 'js/ui/avatar.js', 'js/ui/keyboard.js', 'js/ui/confetti.js',
   'js/screens/select.js', 'js/screens/map.js', 'js/screens/story.js', 'js/screens/challenge.js',
   'js/screens/results.js', 'js/screens/stickers.js', 'js/screens/parent.js',
-  'data/emma.js', 'data/parker.js', 'data/voices.js', 'data/lines.js',
+  'data/emma.js', 'data/parker.js', 'data/justin.js', 'data/voices.js', 'data/lines.js',
   'data/image-manifest.json', 'data/audio-manifest.json',
   'assets/icons/icon-180.png', 'assets/icons/icon-192.png',
 ];

@@ -3,7 +3,7 @@
 import { emptyProfile } from './progress.js';
 
 export const KEY = 'spelling-quest-v1';
-const PLAYERS = ['emma', 'parker'];
+const PLAYERS = ['emma', 'parker', 'justin'];
 
 function defaults() {
   return { version: 1, pin: null, players: Object.fromEntries(PLAYERS.map((p) => [p, emptyProfile()])) };

@@ -7,12 +7,12 @@ const memory = (init = {}) => {
   return { getItem: (k) => (k in data ? data[k] : null), setItem: (k, v) => { data[k] = String(v); }, data };
 };
 
-test('empty storage loads defaults for both players', () => {
+test('empty storage loads defaults for every player', () => {
   const store = createStore(memory());
   const root = store.load();
   assert.equal(root.version, 1);
   assert.equal(root.pin, null);
-  assert.deepEqual(Object.keys(root.players).sort(), ['emma', 'parker']);
+  assert.deepEqual(Object.keys(root.players).sort(), ['emma', 'justin', 'parker']);
   assert.deepEqual(root.players.emma.stats, {});
 });
 

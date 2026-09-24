@@ -44,6 +44,11 @@ export const CHEERS = {
     { who: 'parker', text: 'Emma, that was awesome! High five!' },
     { who: 'parker', text: 'Wow, Emma! Even my dragon is impressed!' },
   ],
+  justin: [
+    { who: 'ashley', text: 'My hero! Spelling like a Supreme Court justice.' },
+    { who: 'ashley', text: 'That\'s my husband! Nobody spells subpoena like you, babe.' },
+    { who: 'ashley', text: 'Case closed, counselor. Dinner is on me.' },
+  ],
   parker: [
     { who: 'emma', text: 'Great job, Parker! You are the best knight in Letterland!' },
     { who: 'emma', text: 'Parker, that was amazing! I am so proud of you!' },

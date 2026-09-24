@@ -23,7 +23,8 @@ export function render(root, ctx, { chapterId, outcome, mode = 'chapter' }) {
   const view = h('section', { class: 'screen results-screen' },
     h('div', { class: 'results-card card' },
       h('div', { class: 'kicker' }, chapter ? chapter.title : 'Training Camp'),
-      h('h1', {}, chapter ? 'Chapter Complete!' : 'Training Complete!'),
+      h('h1', {}, !chapter ? 'Training Complete!' : outcome.passed === false ? 'Case Lost!' : chapter.passRatio ? 'Not Guilty!' : 'Chapter Complete!'),
+      outcome.passed === false ? h('p', { class: 'score' }, `You needed ${Math.ceil(chapter.passRatio * outcome.total)} right on the first try. Play again to win the case!`) : null,
       h('div', { class: 'big-stars' }, starEls),
       h('p', { class: 'score' }, `${outcome.firstTry} of ${outcome.total} on the first try`),
       h('div', { class: 'word-chips' }, (session?.results || []).map((r) => h('span', {

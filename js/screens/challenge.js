@@ -24,7 +24,7 @@ export function render(root, ctx, { mode = 'chapter', chapterId }) {
   if (!chapter) { ctx.go('map'); return; }
   const items = mode === 'camp'
     ? chapter.items
-    : buildChallenge({ chapter, allChapters: all, stats: profile.stats, reviewSlots: player.reviewSlots });
+    : buildChallenge({ chapter, allChapters: all, stats: profile.stats, reviewSlots: player.reviewSlots, ordered: !!player.ordered });
   if (!items.length) { ctx.go('map'); return; }
   const chapterOf = (id) => all.find((c) => c.id === id) || chapter;
   const day = dayKey();

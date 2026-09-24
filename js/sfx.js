@@ -47,6 +47,7 @@ export const sfx = {
   hit: () => { noise({ dur: 0.18, gain: 0.3, from: 1500, to: 200 }); tone({ freq: 120, dur: 0.2, type: 'square', gain: 0.08, slide: 0.5 }); },
   ding: () => tone({ freq: 1318, dur: 0.4, type: 'sine', gain: 0.15 }),
   sparkle: () => [1568, 2093, 2637].forEach((f, i) => tone({ freq: f, start: i * 0.06, dur: 0.18, type: 'sine', gain: 0.07 })),
+  thunder: () => { noise({ dur: 1.6, gain: 0.5, from: 900, to: 60 }); tone({ freq: 55, dur: 1.2, type: 'sawtooth', gain: 0.1, slide: 0.5 }); },
   fanfare: () => [[523, 0], [523, 0.12], [523, 0.24], [659, 0.36], [784, 0.6], [659, 0.78], [784, 0.9], [1047, 1.1]]
     .forEach(([f, s]) => tone({ freq: f, start: s, dur: s >= 1.1 ? 0.6 : 0.16, type: 'square', gain: 0.07 })),
 };

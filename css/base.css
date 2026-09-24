@@ -38,6 +38,14 @@
   --bg-2: #d9fff0;
 }
 
+[data-theme='justin'] {
+  --primary: #1e3a8a;
+  --primary-2: #b9c6e6;
+  --accent: #b8860b;
+  --bg-1: #e9edf5;
+  --bg-2: #f6ecd8;
+}
+
 [data-theme='parker'] {
   --primary: #2563eb;
   --primary-2: #a9c4ff;

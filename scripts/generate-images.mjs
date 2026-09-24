@@ -10,6 +10,7 @@ import path from 'node:path';
 import { ROOT, requireKey, loadEnv, flags, pool, withRetry } from './lib/env.mjs';
 import emma from '../data/emma.js';
 import parker from '../data/parker.js';
+import justin from '../data/justin.js';
 
 const OUT = path.join(ROOT, 'assets', 'img');
 const PHOTOS = path.join(ROOT, 'private', 'photos');
@@ -44,6 +45,24 @@ const KIDS = {
   },
 };
 
+// Grown-ups drawn from photos. `focus` says which person in the photo to draw.
+KIDS.justin = {
+  photo: 'justin.jpg',
+  look: 'a friendly 41-year-old man with short black hair (dark black, just a few faint gray strands), light-tan skin, East Asian features, rectangular dark tortoiseshell glasses, wearing a navy blue suit, white shirt and red tie, holding a leather briefcase',
+  poses: {
+    wave: 'his signature face: eyes wide open behind his glasses, eyebrows raised, lips pressed tightly together in a wobbly nervous frown-grimace, holding his briefcase',
+    cheer: 'triumphant fist pump with a huge relieved grin, briefcase in the other hand',
+    think: 'his signature face: eyes wide open behind his glasses, eyebrows raised, lips pressed tightly together in a wobbly frown-grimace, one hand on his chin',
+    encourage: 'nervously tugging at his collar with a bead of sweat, making his signature wide-eyed tight-lipped frown-grimace',
+  },
+};
+KIDS.ashley = {
+  photo: 'ashley.jpg',
+  focus: 'the woman on the left',
+  look: 'a cheerful woman in her late thirties with long, wavy brown hair, round tortoiseshell glasses and a warm big smile, wearing a red knit cardigan over a graphic t-shirt and jeans',
+  poses: { wave: 'clasping her hands together adoringly, looking proud' },
+};
+
 const CAST = {
   maya: 'a cheerful 9-year-old girl with curly brown hair in two puffs, warm brown skin, wearing a yellow hoodie with a rainbow on it, jeans, and pink sneakers, smiling and waving',
   leo: 'a shy, sweet 9-year-old boy with messy light-brown hair and freckles, wearing an orange t-shirt with a small green dragon on it, holding a dragon-themed lunchbox, smiling a little nervously',
@@ -57,6 +76,9 @@ const CAST = {
   giant: 'the Storm Giant: a huge friendly cloud giant made of stormy blue-gray clouds with a lightning-bolt beard and big puffy cheeks, looking dramatic but kind',
   robot: 'Robo-Boss: a chunky retro toy robot with a square head, antenna, glowing blue eyes, and a small red siren on top, silly and glitchy looking',
   batty: 'Batty: a small chatty purple bat with huge ears, tiny fangs, big theatrical eyes, wearing a tiny cape',
+  stabby: 'Stabby McGee: a shifty but goofy cartoon crook in an orange prison jumpsuit, stubbly chin, a toothpick in his mouth, one eyebrow raised, a too-innocent grin, wrists in handcuffs. Comedic, not scary, no weapons',
+  judge: 'Judge Hammer: a stern older woman judge in black robes holding a wooden gavel, white hair in a tight bun, half-moon glasses, one eyebrow raised in disapproval',
+  pruitt: 'Prosecutor Pruitt: a smug prosecutor with slicked-back hair in a shiny gray suit, pointing dramatically as if shouting objection',
   dragon: 'the Great Word Dragon: a big majestic red-and-gold dragon grandma with kind eyes, curled horns, small reading glasses and golden letters swirling around her. Grand but friendly, not scary',
 };
 
@@ -77,6 +99,8 @@ const SCENES = {
   'scene-p5': 'the top of Thunder Mountain with dramatic storm clouds, a rainbow starting to peek through, rocky path',
   'scene-p6': 'a colorful toy robot factory with conveyor belts, gears, pipes and blinking lights',
   'scene-p7': 'a dark twisty cave with glowing crystals, stalactites and a warm glow at the end of the tunnel',
+  'scene-j1': 'a grand wood-paneled American courtroom with the judge\'s bench, an American flag, a jury box, tall windows and dramatic warm light',
+  'scene-j1-steps': 'the front steps of a big stone courthouse with tall columns under a dark stormy sky with jagged lightning bolts',
   'scene-p8': 'the top of Volcano Peak at sunset with a big treasure pile of golden letters, glowing lava in the distance, epic sky',
 };
 
@@ -85,14 +109,20 @@ const jobs = [];
 for (const [id, kid] of Object.entries(KIDS)) {
   const [firstPose, ...rest] = Object.keys(kid.poses);
   jobs.push({ name: `${id}-${firstPose}`, kind: 'photo', ref: path.join(PHOTOS, kid.photo),
-    prompt: `Use this photo only as a loose reference for hairstyle, clothing colors and general look. Completely redraw the child as an original anime character: ${kid.look}. Pose: ${kid.poses[firstPose]}. ${CHAR}` });
+    prompt: `Use this photo only as a loose reference for hairstyle, face, clothing colors and general look${kid.focus ? ` of ${kid.focus}` : ''}. Completely redraw ${kid.focus ? 'that person' : 'the person'} as an original anime character: ${kid.look}. Pose: ${kid.poses[firstPose]}. ${CHAR}` });
   for (const pose of rest) {
     jobs.push({ name: `${id}-${pose}`, kind: 'ref', ref: path.join(REFS, `${id}-${firstPose}.png`), after: `${id}-${firstPose}`,
       prompt: `The same anime character as in this image (${kid.look}), keeping the exact same art style, face, hair, clothes and colors. New pose: ${kid.poses[pose]}. ${CHAR}` });
   }
 }
-for (const [name, desc] of Object.entries(CAST)) jobs.push({ name, kind: 'char', prompt: `${desc}. ${CHAR}` });
-const sceneNames = new Set([...emma.chapters, ...parker.chapters].map((c) => c.scene?.img).filter(Boolean));
+for (const [name, desc] of Object.entries(CAST)) jobs.push({ name, kind: 'char', keepRef: name === 'stabby', prompt: `${desc}. ${CHAR}` });
+jobs.push({ name: 'stabby-zapped', kind: 'ref', ref: path.join(REFS, 'stabby.png'),
+  prompt: `The same cartoon crook as in this image, keeping the exact same art style, face and orange jumpsuit, right after being struck by lightning: hair standing straight up and frizzed, face smudged with soot, little wisps of smoke, dazed happy smile, jumpsuit singed. Slapstick cartoon, not hurt. ${CHAR}` });
+const allChapters = [...emma.chapters, ...parker.chapters, ...justin.chapters];
+const sceneNames = new Set([
+  ...allChapters.map((c) => c.scene?.img),
+  ...allChapters.flatMap((c) => [...(c.outro || []), ...(c.outroFail || [])].map((l) => l.scene)),
+].filter(Boolean));
 for (const [name, desc] of Object.entries(SCENES)) if (sceneNames.has(name)) jobs.push({ name, kind: 'scene', prompt: `${desc}. ${SCENE}` });
 
 const only = flags.only ? new Set(String(flags.only).split(',')) : null;
@@ -147,7 +177,7 @@ im.save(sys.argv[2], 'WEBP', quality=82, method=6)
 }
 
 async function run(job, key) {
-  const png = path.join(job.kind === 'photo' ? REFS : OUT, `${job.name}.png`);
+  const png = path.join(job.kind === 'photo' || job.keepRef ? REFS : OUT, `${job.name}.png`);
   const webp = path.join(OUT, `${job.name}.webp`);
   if (job.kind === 'photo' && !existsSync(job.ref)) throw new Error(`photo not found: ${job.ref}`);
   if (job.kind === 'ref' && !existsSync(job.ref)) throw new Error(`reference not generated yet: ${job.ref}`);
@@ -161,8 +191,8 @@ async function run(job, key) {
 const key = requireKey();
 let failed = 0;
 // Photo-based portraits first (other poses depend on them), then everything else in parallel.
-const first = selected.filter((j) => j.kind === 'photo');
-const later = selected.filter((j) => j.kind !== 'photo');
+const first = selected.filter((j) => j.kind === 'photo' || j.keepRef);
+const later = selected.filter((j) => !(j.kind === 'photo' || j.keepRef));
 for (const phase of [first, later]) {
   await pool(phase, 3, async (job) => {
     try { await run(job, key); } catch (e) { failed++; console.error(`  ✗ ${job.name}: ${e.message}`); }

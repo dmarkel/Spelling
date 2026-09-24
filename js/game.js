@@ -1,11 +1,12 @@
 // Game rules that sit between the engine and the screens: chapters, unlocking, rewards.
 import emma from '../data/emma.js';
 import parker from '../data/parker.js';
+import justin from '../data/justin.js';
 import { buildTrainingCamp } from './engine/scheduler.js';
 import { finishWord, recordMiss, updateStreak, starsFor, logSession } from './engine/progress.js';
 import { normalize } from './engine/compare.js';
 
-export const PLAYERS = { emma, parker };
+export const PLAYERS = { emma, parker, justin };
 
 export const BONUS_STICKERS = [
   { id: 'perfect', emoji: '🌟', name: 'Perfect Round' },
@@ -85,6 +86,7 @@ export function completeWord(profile, word, firstTry, day) {
 export function finishRound(profile, { chapter, results, mode, day }) {
   const firstTry = results.filter((r) => r.firstTry).length;
   const stars = starsFor(firstTry, results.length);
+  const passed = !chapter.passRatio || (results.length > 0 && firstTry / results.length >= chapter.passRatio);
   const newStickers = [];
   const award = (s) => {
     if (s && !profile.stickers.includes(s.id)) { profile.stickers.push(s.id); newStickers.push(s); }
@@ -92,8 +94,8 @@ export function finishRound(profile, { chapter, results, mode, day }) {
 
   if (mode === 'chapter') {
     const prev = profile.chapters[chapter.id] || { stars: 0, plays: 0 };
-    profile.chapters[chapter.id] = { done: true, stars: Math.max(prev.stars, stars), plays: prev.plays + 1, last: day };
-    award(chapter.sticker);
+    profile.chapters[chapter.id] = { done: prev.done || passed, stars: passed ? Math.max(prev.stars, stars) : prev.stars, plays: prev.plays + 1, last: day };
+    if (passed) award(chapter.sticker);
   } else {
     award(BONUS_STICKERS[1]);
   }
@@ -104,7 +106,7 @@ export function finishRound(profile, { chapter, results, mode, day }) {
   if (profile.streak.count >= 7) award(BONUS_STICKERS[4]);
 
   logSession(profile, { day, at: Date.now(), chapterId: chapter.id, title: chapter.title, mode, results });
-  return { stars, firstTry, total: results.length, newStickers };
+  return { stars, firstTry, total: results.length, newStickers, passed };
 }
 
 export function allStickers(player) {

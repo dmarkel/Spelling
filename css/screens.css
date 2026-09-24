@@ -8,9 +8,10 @@
 .logo-a { color: #ff7eb6; }
 .logo-b { color: var(--gold); }
 .tagline { font-size: 1.5rem; font-weight: 600; margin-top: 10px; color: var(--ink-soft); }
-.hero-row { display: flex; gap: clamp(10px, 4vw, 40px); justify-content: center; width: 100%; }
+.hero-row { display: flex; flex-wrap: wrap; gap: clamp(10px, 3vw, 32px); justify-content: center; width: 100%; max-width: 1200px; }
+.hero-card { position: relative; }
 .hero-card {
-  flex: 0 1 360px; min-width: 0;
+  flex: 0 1 calc(33.33% - 22px); max-width: 360px; min-width: 0;
   padding: 22px 18px 20px;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   cursor: pointer; transition: transform 0.12s;
@@ -19,10 +20,13 @@
 .hero-emma { background: linear-gradient(170deg, #f6e8ff 0%, #fff 55%, #dcfff1 100%); }
 .hero-parker { background: linear-gradient(170deg, #dfeaff 0%, #fff 55%, #ffe1e4 100%); }
 .hero-art { margin-bottom: 4px; }
-.hero-art .avatar { width: min(34vh, 40vw, 330px) !important; height: min(34vh, 40vw, 330px) !important; }
+.hero-art .avatar { width: min(34vh, 26vw, 330px) !important; height: min(34vh, 26vw, 330px) !important; }
 .hero-name { font-size: 2.4rem; font-weight: 700; }
 .hero-emma .hero-name { color: #9b59d0; }
 .hero-parker .hero-name { color: #2563eb; }
+.hero-justin { background: linear-gradient(170deg, #e7ecf7 0%, #fff 55%, #f7ecd9 100%); }
+.hero-justin .hero-name { color: #1e3a8a; }
+.hero-grownup { position: absolute; top: 10px; right: 10px; font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: #1e3a8a; color: #fff; }
 .hero-quest { font-size: 1.05rem; color: var(--ink-soft); font-weight: 500; }
 .hero-stats { display: flex; gap: 8px; margin-top: 8px; }
 .parent-link { min-height: 46px; font-size: 1rem; }
@@ -93,6 +97,9 @@
 .actor { margin: 0 calc(var(--actor) * -0.21); transition: transform 0.3s, filter 0.3s, opacity 0.3s; transform-origin: bottom center; }
 .actor.speaking { transform: scale(1.06) translateY(-4px); z-index: 2; }
 .actor.speaking .avatar { animation: bob 1.4s ease-in-out infinite; }
+.actor.offstage { display: none; }
+.actor.enter { animation: actor-enter 0.5s cubic-bezier(.2, .9, .3, 1.2) both; }
+@keyframes actor-enter { from { opacity: 0; transform: translateX(60px); } }
 .actor.quiet { filter: saturate(0.75) brightness(0.92); }
 .story-bottom { position: relative; z-index: 2; display: flex; gap: 14px; align-items: stretch; }
 .bubble-slot { flex: 1; cursor: pointer; }
@@ -101,6 +108,11 @@
 .bubble.narration { background: #fff8e1; font-style: normal; }
 .next-btn { width: 90px; font-size: 2rem; padding: 0; align-self: flex-end; }
 .next-btn.ready { animation: bob 1.2s ease-in-out infinite; }
+
+/* Lightning flash for dramatic story moments. */
+.lightning { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: #fff; opacity: 0; }
+.lightning.go { animation: lightning 0.9s ease-out; }
+@keyframes lightning { 0%, 20%, 40% { opacity: 0; } 10%, 30% { opacity: 0.95; } 55% { opacity: 0.6; } 100% { opacity: 0; } }
 
 /* ---------- Results ---------- */
 .results-screen {
@@ -228,7 +240,9 @@
   .pill { white-space: nowrap; padding: 4px 10px; font-size: 1rem; }
   .select-screen { gap: 18px; }
   .tagline { font-size: 1.2rem; }
-  .hero-card { padding: 14px 8px; border-radius: 18px; }
+  .hero-card { padding: 14px 8px; border-radius: 18px; flex-basis: calc(50% - 6px); max-width: none; }
+  .hero-art .avatar { width: min(26vh, 40vw) !important; height: min(26vh, 40vw) !important; }
+  .hero-grownup { font-size: 0.7rem; top: 6px; right: 6px; }
   .hero-name { font-size: 1.7rem; }
   .hero-quest { font-size: 0.85rem; }
   .map-actions .btn { min-height: 48px; font-size: 1.05rem; padding: 0 16px; }
@@ -258,7 +272,7 @@
   .select-screen { gap: 10px; justify-content: flex-start; }
   .logo { font-size: 2.3rem; text-shadow: 0 4px 0 var(--ink); }
   .tagline { font-size: 1.05rem; margin-top: 4px; }
-  .hero-card { padding: 8px; flex-basis: 300px; }
+  .hero-card { padding: 8px; flex-basis: calc(33.33% - 22px); }
   .hero-art .avatar { width: 34vh !important; height: 34vh !important; }
   .hero-name { font-size: 1.5rem; }
   .hero-quest { display: none; }

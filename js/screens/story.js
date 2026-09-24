@@ -1,6 +1,6 @@
 // Comic-style story scene: voiced lines, one speech bubble at a time.
 import { h, clear, wait } from '../ui/el.js';
-import { avatar } from '../ui/avatar.js';
+import { avatar, setPose } from '../ui/avatar.js';
 import { chapterById } from '../game.js';
 import { imageUrl } from '../assets.js';
 import { say, stop, preload } from '../audio.js';
@@ -14,7 +14,9 @@ export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
   const { player, profile } = ctx;
   const chapter = chapterById(player, profile, chapterId);
   if (!chapter) { ctx.go('map'); return; }
-  const lines = chapter[part] || [];
+  // A chapter with a pass mark has a different ending when the case is lost.
+  const lost = part === 'outro' && outcome && outcome.passed === false && chapter.outroFail;
+  const lines = (lost ? chapter.outroFail : chapter[part]) || [];
   preload(lines);
 
   const next = () => (part === 'intro'
@@ -26,7 +28,8 @@ export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
   const others = [...new Set([...(chapter.cast || []), ...lines.map((l) => l.who)])]
     .filter((w) => !OFFSTAGE.has(w) && w !== player.id);
   const cast = [player.id, ...others].slice(0, 5);
-  const actors = new Map(cast.map((who) => [who, h('div', { class: 'actor', dataset: { who } }, avatar(who, { pose: 'wave', size: 300 }))]));
+  const onstage = new Set([player.id, ...(chapter.cast || [])]);
+  const actors = new Map(cast.map((who) => [who, h('div', { class: `actor ${onstage.has(who) || part === 'intro' ? '' : 'offstage'}`, dataset: { who } }, avatar(who, { pose: 'wave', size: 300 }))]));
 
   const bg = imageUrl(chapter.scene?.img);
   const [c1, c2] = chapter.scene?.colors || ['#fff', '#eee'];
@@ -34,10 +37,12 @@ export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
   const bubbleSlot = h('div', { class: 'bubble-slot' });
   const nextBtn = h('button', { class: 'btn btn-primary btn-big next-btn', 'aria-label': 'Next' }, '▶');
 
+  const flashEl = h('div', { class: 'lightning', 'aria-hidden': 'true' });
   const view = h('section', {
     class: 'screen story-screen',
     style: { '--c1': c1, '--c2': c2, backgroundImage: bg ? `url(${bg})` : '' },
   },
+  flashEl,
   bg ? null : h('div', { class: 'scene-emoji', 'aria-hidden': 'true' }, chapter.scene?.emoji || '📖'),
   h('div', { class: 'story-top' },
     h('button', { class: 'btn btn-icon btn-ghost', 'aria-label': 'Back to map', onclick: () => { sfx.back(); ctx.go('map'); } }, '✕'),
@@ -63,6 +68,16 @@ export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
     const s = SPEAKERS[line.who] || SPEAKERS.narrator;
     const { direction, spoken } = splitDirection(line.text);
 
+    // Optional per-line staging: a new backdrop, a new expression, a special effect.
+    const sceneUrl = line.scene && imageUrl(line.scene);
+    if (sceneUrl) view.style.backgroundImage = `url(${sceneUrl})`;
+    for (const who of line.exit || []) actors.get(who)?.classList.add('offstage');
+    if (line.pose) setPose(actors.get(line.who)?.querySelector('.avatar'), line.pose);
+    if (line.fx === 'lightning') { sfx.thunder(); flashEl.classList.remove('go'); void flashEl.offsetWidth; flashEl.classList.add('go'); }
+
+    // Characters who aren't part of the opening cast walk on when they first speak.
+    const entering = actors.get(line.who);
+    if (entering?.classList.contains('offstage')) { entering.classList.remove('offstage'); entering.classList.add('enter'); }
     for (const [who, el] of actors) {
       el.classList.toggle('speaking', who === line.who);
       el.classList.toggle('quiet', !OFFSTAGE.has(line.who) && who !== line.who);

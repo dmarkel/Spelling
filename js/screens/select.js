@@ -21,6 +21,7 @@ export function render(root, ctx) {
         ctx.go('map');
       },
     },
+    id === 'justin' ? h('span', { class: 'hero-grownup' }, 'Grown-up mode') : null,
     h('div', { class: 'hero-art bob' }, avatar(id, { pose: 'wave', size: 220 })),
     h('div', { class: 'hero-name' }, p.name),
     h('div', { class: 'hero-quest' }, p.title),
@@ -35,7 +36,7 @@ export function render(root, ctx) {
       h('h1', { class: 'logo' }, h('span', { class: 'logo-a' }, 'Spelling'), ' ', h('span', { class: 'logo-b' }, 'Quest')),
       h('p', { class: 'tagline' }, 'Who is playing today?'),
     ),
-    h('div', { class: 'hero-row' }, card('emma'), card('parker')),
+    h('div', { class: 'hero-row' }, Object.keys(PLAYERS).map(card)),
     h('button', {
       class: 'btn btn-ghost parent-link',
       onclick: () => { sfx.click(); ctx.go('parent'); },

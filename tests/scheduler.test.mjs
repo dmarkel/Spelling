@@ -62,3 +62,8 @@ test('stats are looked up by normalized word', () => {
   const camp = buildTrainingCamp({ allChapters: chs, stats: { "i'm": stat(1, 2) }, size: 5 });
   assert.deepEqual(camp.map((r) => r.entry.word), ["I'm"]);
 });
+
+test('ordered challenges keep the chapter word order', () => {
+  const round = buildChallenge({ chapter: chapters[0], allChapters: chapters, stats: {}, ordered: true, rand: () => 0 });
+  assert.deepEqual(round.map((r) => r.entry.word), ['what', 'when', 'where']);
+});
