@@ -5,6 +5,7 @@ import { keyboard } from '../ui/keyboard.js';
 import { confetti } from '../ui/confetti.js';
 import { chapterById, chaptersFor, campChapter, missWord, completeWord, finishRound } from '../game.js';
 import { buildChallenge } from '../engine/scheduler.js';
+import { imageUrl } from '../assets.js';
 import { check, attemptView, hintMask } from '../engine/compare.js';
 import { coachStep, tipFor, spellOut, lettersOf } from '../engine/coach.js';
 import { dayKey } from '../engine/progress.js';
@@ -43,10 +44,10 @@ export function render(root, ctx, { mode = 'chapter', chapterId }) {
   const dots = h('div', { class: 'dots' }, items.map(() => h('span', { class: 'dot' })));
   const meterLabel = (hp && chapter.villain ? SPEAKERS[chapter.villain.who]?.name : chapter.meter?.label) || chapter.title;
   const villain = chapter.villain
-    ? avatar(chapter.villain.who, { size: 170, className: 'villain' })
+    ? avatar(chapter.villain.who, { size: 280, className: 'villain' })
     : h('div', { class: 'villain scene-badge' }, chapter.scene?.emoji || '⭐');
   const villainSays = h('div', { class: 'villain-says' });
-  const hero = avatar(player.id, { pose: 'think', size: 150, className: 'hero' });
+  const hero = avatar(player.id, { pose: 'think', size: 260, className: 'hero' });
   const heroSays = h('div', { class: 'hero-says' });
   const reviewTag = h('div', { class: 'review-tag' }, '🔁 Review word');
   const coachPanel = h('div', { class: 'coach-panel', hidden: true });
@@ -57,7 +58,11 @@ export function render(root, ctx, { mode = 'chapter', chapterId }) {
 
   const kb = keyboard({ onKey: typeKey, onBackspace: backspace, onEnter: submit });
 
-  const view = h('section', { class: `screen challenge-screen ${hp ? 'meter-hp' : 'meter-fillup'}` },
+  const sceneImg = imageUrl(chapter.scene?.img);
+  const view = h('section', {
+    class: `screen challenge-screen ${hp ? 'meter-hp' : 'meter-fillup'} ${sceneImg ? 'has-scene' : ''}`,
+    style: sceneImg ? { '--scene': `url(${new URL(sceneImg, location.href).href})` } : {},
+  },
     h('div', { class: 'ch-top' },
       h('button', { class: 'btn btn-icon', 'aria-label': 'Back to map', onclick: () => { sfx.back(); ctx.go('map'); } }, '✕'),
       h('div', { class: 'meter card' },

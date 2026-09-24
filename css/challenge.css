@@ -10,10 +10,15 @@
 @media (orientation: landscape) and (min-width: 900px) {
   .challenge-screen {
     grid-template-areas: 'top top' 'stage card' 'kb kb';
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: minmax(280px, 32%) 1fr;
     grid-template-rows: auto 1fr auto;
   }
-  .ch-stage { flex-direction: column; justify-content: space-around; }
+  /* Villain big and front; hero smaller, peeking in from the corner. */
+  .ch-stage { position: relative; display: block; }
+  .ch-villain { position: absolute; left: 0; top: 0; }
+  .ch-hero { position: absolute; right: 0; bottom: 0; }
+  .ch-villain .avatar { width: min(40vh, 300px) !important; height: min(40vh, 300px) !important; }
+  .ch-hero .avatar { width: min(30vh, 220px) !important; height: min(30vh, 220px) !important; }
 }
 
 .ch-top { grid-area: top; display: flex; align-items: center; gap: 12px; }
@@ -31,8 +36,13 @@
 
 .ch-stage { grid-area: stage; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
 .ch-villain, .ch-hero { position: relative; display: flex; flex-direction: column; align-items: center; }
-.ch-villain .avatar { width: clamp(120px, 20vh, 220px) !important; height: clamp(120px, 20vh, 220px) !important; }
-.ch-hero .avatar { width: clamp(110px, 18vh, 200px) !important; height: clamp(110px, 18vh, 200px) !important; }
+.ch-villain .avatar { width: clamp(150px, 26vh, 300px) !important; height: clamp(150px, 26vh, 300px) !important; }
+.ch-hero .avatar { width: clamp(140px, 24vh, 280px) !important; height: clamp(140px, 24vh, 280px) !important; }
+/* The chapter's scene sits behind the whole challenge, softened so the letters stay easy to read. */
+.challenge-screen.has-scene::before {
+  content: ''; position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.5)), var(--scene) center / cover no-repeat;
+}
 .scene-badge {
   width: clamp(110px, 16vh, 160px); aspect-ratio: 1; border-radius: 50%;
   display: grid; place-items: center; font-size: clamp(3.5rem, 8vh, 5rem);

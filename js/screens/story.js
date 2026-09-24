@@ -26,12 +26,11 @@ export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
   const others = [...new Set([...(chapter.cast || []), ...lines.map((l) => l.who)])]
     .filter((w) => !OFFSTAGE.has(w) && w !== player.id);
   const cast = [player.id, ...others].slice(0, 5);
-  const size = cast.length > 3 ? 120 : 150;
-  const actors = new Map(cast.map((who) => [who, h('div', { class: 'actor', dataset: { who } }, avatar(who, { pose: 'wave', size }))]));
+  const actors = new Map(cast.map((who) => [who, h('div', { class: 'actor', dataset: { who } }, avatar(who, { pose: 'wave', size: 300 }))]));
 
   const bg = imageUrl(chapter.scene?.img);
   const [c1, c2] = chapter.scene?.colors || ['#fff', '#eee'];
-  const stage = h('div', { class: 'stage-actors' }, [...actors.values()]);
+  const stage = h('div', { class: 'stage-actors', style: { '--n': cast.length } }, [...actors.values()]);
   const bubbleSlot = h('div', { class: 'bubble-slot' });
   const nextBtn = h('button', { class: 'btn btn-primary btn-big next-btn', 'aria-label': 'Next' }, '▶');
 

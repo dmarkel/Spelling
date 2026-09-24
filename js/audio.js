@@ -1,5 +1,5 @@
 // Speech: plays pre-generated OpenAI mp3s through Web Audio (reliable on iPad once
-// unlocked by a tap); falls back to the device's built-in voice when a line has no mp3.
+// unlocked by a tap). The device's built-in voice is only used for lines that have no recording.
 import { audioUrl } from './assets.js';
 import { SPEAKERS } from '../data/voices.js';
 import { splitDirection, audioKey } from './engine/text.js';
@@ -104,14 +104,21 @@ export async function say(text, who = 'narrator') {
   const my = ++token;
   stop(false);
   const url = audioUrl(audioKey(who, text));
-  const c = audioContext();
-  if (url && c) {
-    try {
-      const buf = await bufferFor(url);
-      if (my !== token) return false;
-      return await playBuffer(buf);
-    } catch { /* fall back to the device voice */ }
+  // Recorded lines always use the recording: retry once on a slow connection, never switch to the robot voice.
+  if (url) {
+    const c = audioContext();
+    if (!c) return true;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const buf = await bufferFor(url);
+        if (my !== token) return false;
+        return await playBuffer(buf);
+      } catch { /* try once more */ }
+    }
+    return true;
   }
+  // Only lines with no recording at all (words added to the Teacher's List) use the device voice.
+  if (location.hostname === 'localhost') console.warn('[no-recording]', audioKey(who, text));
   if (my !== token) return false;
   return speakFallback(splitDirection(text).spoken, who);
 }
