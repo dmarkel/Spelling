@@ -40,7 +40,7 @@ export function render(root, ctx, { chapterId, outcome, mode = 'chapter' }) {
         chapter ? h('button', { class: 'btn', onclick: () => { sfx.click(); ctx.go('challenge', { mode: 'chapter', chapterId: chapter.id }); } }, '🔁 Play again') : null,
         h('button', { class: nextChapter ? 'btn' : 'btn btn-primary btn-big', onclick: () => { sfx.click(); ctx.go('map'); } }, '🗺️ Map'))),
     h('div', { class: 'sibling-cheer' },
-      avatar(player.sibling, { pose: 'cheer', size: 170, className: 'bob' }),
+      avatar(player.sibling, { pose: 'cheer', size: 170 }),
       h('div', { class: 'bubble', style: { '--who': SPEAKERS[cheer.who].color } },
         h('span', { class: 'who', style: { background: SPEAKERS[cheer.who].color } }, SPEAKERS[cheer.who].name),
         cheer.text)));

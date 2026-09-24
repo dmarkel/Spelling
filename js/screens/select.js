@@ -22,7 +22,7 @@ export function render(root, ctx) {
       },
     },
     id === 'justin' ? h('span', { class: 'hero-grownup' }, 'Grown-up mode') : null,
-    h('div', { class: 'hero-art bob' }, avatar(id, { pose: 'wave', size: 220 })),
+    h('div', { class: 'hero-art' }, avatar(id, { pose: 'wave', size: 220 })),
     h('div', { class: 'hero-name' }, p.name),
     h('div', { class: 'hero-quest' }, p.title),
     h('div', { class: 'hero-stats' },

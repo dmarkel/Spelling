@@ -29,7 +29,11 @@ export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
     .filter((w) => !OFFSTAGE.has(w) && w !== player.id);
   const cast = [player.id, ...others].slice(0, 5);
   const onstage = new Set([player.id, ...(chapter.cast || [])]);
-  const actors = new Map(cast.map((who) => [who, h('div', { class: `actor ${onstage.has(who) || part === 'intro' ? '' : 'offstage'}`, dataset: { who } }, avatar(who, { pose: 'wave', size: 300 }))]));
+  const actors = new Map(cast.map((who, slot) => [who, h('div', {
+    class: `actor ${onstage.has(who) || part === 'intro' ? '' : 'offstage'}`,
+    dataset: { who },
+    style: { '--slot': slot },
+  }, avatar(who, { pose: 'wave', size: 300 }))]));
 
   const bg = imageUrl(chapter.scene?.img);
   const [c1, c2] = chapter.scene?.colors || ['#fff', '#eee'];
@@ -76,8 +80,7 @@ export function render(root, ctx, { chapterId, part = 'intro', outcome }) {
     if (line.fx === 'lightning') { sfx.thunder(); flashEl.classList.remove('go'); void flashEl.offsetWidth; flashEl.classList.add('go'); }
 
     // Characters who aren't part of the opening cast walk on when they first speak.
-    const entering = actors.get(line.who);
-    if (entering?.classList.contains('offstage')) { entering.classList.remove('offstage'); entering.classList.add('enter'); }
+    actors.get(line.who)?.classList.remove('offstage');
     for (const [who, el] of actors) {
       el.classList.toggle('speaking', who === line.who);
       el.classList.toggle('quiet', !OFFSTAGE.has(line.who) && who !== line.who);

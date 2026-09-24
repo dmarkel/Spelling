@@ -65,7 +65,7 @@
 .stop.right .stop-label { right: calc(100% + 12px); text-align: right; }
 .stop-title { font-weight: 700; font-size: 1.1rem; line-height: 1.15; }
 .stop-pattern { font-size: 0.9rem; color: var(--ink-soft); }
-.stop-hero { position: absolute; top: -30px; pointer-events: none; animation: bob 2s ease-in-out infinite; }
+.stop-hero { position: absolute; top: -30px; pointer-events: none; }
 .stop.left .stop-hero { right: calc(100% + 4px); }
 .stop.right .stop-hero { left: calc(100% + 4px); }
 
@@ -87,20 +87,28 @@
 .story-title { padding: 8px 18px; font-size: clamp(1.2rem, 2.6vw, 1.7rem); font-weight: 700; }
 .story-title .kicker { font-size: 0.8rem; }
 .stage-actors {
-  position: relative; z-index: 1;
-  display: flex; align-items: flex-end; justify-content: space-around; min-width: 0;
-  /* Characters stand in the scene: as tall as the space allows, overlapping a little like a group. */
-  --actor: min(56vh, calc((100vw - 40px) / var(--n, 3) * 1.75));
+  position: relative; z-index: 1; min-width: 0;
+  /* Every character gets a fixed slot for the whole scene: nobody moves, nobody changes layers. */
+  --actor: min(56vh, calc((100vw - 40px) / var(--n, 3) * 1.55));
+  height: var(--actor);
   margin-bottom: -18px;
+  align-self: end;
 }
 .stage-actors .avatar { width: var(--actor) !important; height: var(--actor) !important; }
-.actor { margin: 0 calc(var(--actor) * -0.21); transition: transform 0.3s, filter 0.3s, opacity 0.3s; transform-origin: bottom center; }
-.actor.speaking { transform: scale(1.06) translateY(-4px); z-index: 2; }
-.actor.speaking .avatar { animation: bob 1.4s ease-in-out infinite; }
-.actor.offstage { display: none; }
-.actor.enter { animation: actor-enter 0.5s cubic-bezier(.2, .9, .3, 1.2) both; }
-@keyframes actor-enter { from { opacity: 0; transform: translateX(60px); } }
-.actor.quiet { filter: saturate(0.75) brightness(0.92); }
+.actor {
+  position: absolute; bottom: 0;
+  left: calc((var(--slot) + 0.5) / var(--n) * 100%);
+  transform: translateX(-50%);
+  transition: opacity 0.4s, filter 0.3s;
+}
+.actor::after { /* soft spotlight under whoever is talking */
+  content: ''; position: absolute; left: 15%; right: 15%; bottom: 2%; height: 9%;
+  border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 244, 190, 0.85), transparent);
+  opacity: 0; transition: opacity 0.3s; z-index: -1;
+}
+.actor.speaking::after { opacity: 1; }
+.actor.quiet { filter: saturate(0.7) brightness(0.88); }
+.actor.offstage { opacity: 0; pointer-events: none; }
 .story-bottom { position: relative; z-index: 2; display: flex; gap: 14px; align-items: stretch; }
 .bubble-slot { flex: 1; cursor: pointer; }
 .bubble-slot .bubble { min-height: 110px; padding-top: 22px; animation: bubble-in 0.3s ease-out both; }
@@ -281,7 +289,7 @@
   .story-screen { padding: calc(8px + var(--safe-top)) 14px calc(8px + var(--safe-bottom)); }
   .story-top .btn { min-height: 42px; }
   .story-title { padding: 4px 12px; font-size: 1rem; }
-  .stage-actors { --actor: min(52vh, calc((100vw - 40px) / var(--n, 3) * 1.4)); }
+  .stage-actors { --actor: min(52vh, calc((100vw - 40px) / var(--n, 3) * 1.25)); }
   .bubble-slot .bubble { min-height: 0; padding: 14px 16px 10px; font-size: 1.05rem; }
   .next-btn { width: 60px; min-height: 60px; }
   .results-screen { min-height: 0; gap: 12px; }

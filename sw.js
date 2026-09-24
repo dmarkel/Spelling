@@ -1,6 +1,6 @@
 // Offline support. Code and data: network first (so updates show up), cache as fallback.
 // Images, audio and fonts: cache first (they never change once generated).
-const VERSION = 'sq-v9';
+const VERSION = 'sq-v10';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
   'css/base.css', 'css/screens.css', 'css/challenge.css',

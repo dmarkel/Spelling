@@ -167,10 +167,10 @@ p { margin: 0; }
 
 /* Motion */
 @keyframes bob { 50% { transform: translateY(-8px); } }
-@keyframes wiggle { 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+@keyframes wiggle { 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
 @keyframes shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
 @keyframes pop-in { 0% { transform: scale(0.3); opacity: 0; } 70% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
-@keyframes hit { 0% { transform: none; filter: none; } 30% { transform: translateX(18px) rotate(8deg) scale(0.92); filter: brightness(2.2); } 100% { transform: none; filter: none; } }
+@keyframes hit { 0% { filter: none; } 30% { filter: brightness(2.2) drop-shadow(0 0 18px #fff6b0); } 100% { filter: none; } }
 @keyframes pulse-glow { 50% { box-shadow: 0 0 0 10px rgba(255, 194, 51, 0.45), var(--pop); } }
 .bob { animation: bob 2.4s ease-in-out infinite; }
 .shake { animation: shake 0.45s; }
