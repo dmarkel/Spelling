@@ -49,7 +49,22 @@ document.addEventListener('pointerdown', () => { if (!unlocked) { unlocked = tru
 
 async function boot() {
   await loadManifests();
+  if (location.hostname === 'localhost' && new URLSearchParams(location.search).has('shot')) return screenshotRoute();
   ctx.go('select');
+}
+
+// Local-only jump straight to a screen, used for layout screenshots: ?shot=challenge:emma:e2:miss
+async function screenshotRoute() {
+  const [screen, player, chapterId, extra] = new URLSearchParams(location.search).get('shot').split(':');
+  if (player) ctx.setPlayer(player);
+  const outcome = { stars: 2, firstTry: 4, total: 6, newStickers: [{ id: 'e1', emoji: '💌', name: 'Mystery Note' }] };
+  const params = { chapterId, mode: 'chapter', part: 'intro', outcome, kid: player };
+  if (screen === 'parent') (await import('./screens/parent.js')).unlockForScreenshots?.();
+  await ctx.go(screen, params);
+  if (extra === 'miss') {
+    const key = (k) => document.dispatchEvent(new KeyboardEvent('keydown', { key: k }));
+    setTimeout(() => { key('w'); key('a'); key('Enter'); }, 300);
+  }
 }
 boot();
 

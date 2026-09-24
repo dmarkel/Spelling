@@ -7,6 +7,7 @@ import { normalize } from '../engine/compare.js';
 import { sfx } from '../sfx.js';
 
 let unlockedThisVisit = false;
+export function unlockForScreenshots() { if (location.hostname === 'localhost') unlockedThisVisit = true; }
 
 export function render(root, ctx, params = {}) {
   const view = h('section', { class: 'screen parent-screen' });

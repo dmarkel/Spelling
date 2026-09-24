@@ -2,7 +2,8 @@
 .challenge-screen {
   display: grid;
   grid-template-areas: 'top' 'stage' 'card' 'kb';
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr); /* never wider than the screen */
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 10px;
   max-width: 1100px; margin: 0 auto;
   height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
@@ -10,8 +11,8 @@
 @media (orientation: landscape) and (min-width: 900px) {
   .challenge-screen {
     grid-template-areas: 'top top' 'stage card' 'kb kb';
-    grid-template-columns: minmax(280px, 32%) 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-columns: minmax(280px, 32%) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
   /* Villain big and front; hero smaller, peeking in from the corner. */
   .ch-stage { position: relative; display: block; }
@@ -78,7 +79,7 @@
 .answer.mode-fill, .show-word, .tile-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .answer.mode-cover-input { flex-direction: column; }
 .tile {
-  --t: clamp(46px, 6.4vw, 66px);
+  --t: clamp(30px, 8.4vw, 66px);
   width: var(--t); height: calc(var(--t) * 1.15);
   display: inline-grid; place-items: center;
   border: var(--line); border-radius: 14px; background: #fff; box-shadow: var(--pop-sm);
@@ -91,7 +92,7 @@
 @keyframes caret { 50% { opacity: 0.25; } }
 .tile.good { background: var(--good); color: #fff; }
 .tile.show { background: #fff4c2; }
-.tile.small { --t: clamp(34px, 4.6vw, 46px); }
+.tile.small { --t: clamp(26px, 6vw, 46px); }
 .tile.ok { background: var(--good-soft); border-color: var(--good); color: #0f7a4b; }
 .tile.wrong { background: var(--bad-soft); border-color: var(--bad); color: #b3243a; }
 .tile.extra { background: var(--bad-soft); border-color: var(--bad); color: #b3243a; text-decoration: line-through; }
@@ -136,3 +137,74 @@
 .key-back { flex: 1 1 0; max-width: 150px; }
 .key-check { background: var(--good); color: #fff; flex: 2.4 1 0; max-width: 360px; }
 .key-check:active { background: #189a60; }
+
+/* ---------- Phones (portrait) ---------- */
+@media (max-width: 600px) {
+  .challenge-screen { gap: 8px; }
+  .ch-top { gap: 8px; }
+  .ch-top .btn-icon { width: 44px; min-height: 44px; font-size: 1.2rem; }
+  .meter { padding: 6px 10px; gap: 8px; }
+  .meter-label { font-size: 0.9rem; }
+  .meter-track { height: 16px; }
+  .dots { max-width: 90px; gap: 4px; }
+  .dot { width: 11px; height: 11px; }
+  .ch-villain .avatar { width: clamp(90px, 17vh, 170px) !important; height: clamp(90px, 17vh, 170px) !important; }
+  .ch-hero .avatar { width: clamp(84px, 15vh, 150px) !important; height: clamp(84px, 15vh, 150px) !important; }
+  .mini-bubble { font-size: 0.85rem; max-width: 170px; }
+  .ch-card { padding: 12px 10px; gap: 8px; }
+  .ch-listen { flex-wrap: nowrap; width: 100%; gap: 6px; }
+  .listen-btn { flex: 1 1 0; min-width: 0; min-height: 44px; font-size: 0.95rem; padding: 0 6px; gap: 0.25em; white-space: nowrap; }
+  .ch-hint { font-size: 1rem; }
+  /* Speech bubble sits beside the villain instead of over the card. */
+  .ch-villain .villain-says { top: 18%; left: calc(100% - 6px); }
+  .ch-hero .hero-says { top: 18%; left: auto; right: calc(100% - 6px); }
+  .coach-panel { padding: 8px 10px; }
+  .coach-panel .tip { font-size: 1rem; }
+  .answer, .answer.mode-fill, .show-word, .tile-row { gap: 5px; }
+  .tile { border-width: 2.5px; border-radius: 10px; }
+  .keyboard { gap: 6px; }
+  .key-row { gap: 4px; }
+  .key { height: clamp(42px, 6.6vh, 56px); border-radius: 10px; border-width: 2.5px; font-size: 1.35rem; }
+  .key-wide { font-size: 1.15rem; }
+  .praise { font-size: 1.5rem; }
+}
+
+/* ---------- Short landscape screens (phones turned sideways) ---------- */
+@media (orientation: landscape) and (max-height: 540px) {
+  .challenge-screen {
+    grid-template-areas: 'top top' 'stage card' 'kb kb';
+    grid-template-columns: minmax(150px, 24%) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 6px;
+  }
+  .ch-top .btn-icon { width: 40px; min-height: 40px; font-size: 1.1rem; }
+  .meter { padding: 4px 10px; }
+  .meter-track { height: 14px; }
+  .dot { width: 11px; height: 11px; }
+  .ch-stage { position: relative; display: block; }
+  .ch-villain { position: absolute; left: 0; top: 0; }
+  .ch-hero { position: absolute; right: 0; bottom: 0; }
+  .ch-villain .avatar { width: min(34vh, 140px) !important; height: min(34vh, 140px) !important; }
+  .ch-hero .avatar { width: min(26vh, 100px) !important; height: min(26vh, 100px) !important; }
+  .villain-says, .hero-says, .review-tag, .ch-hint { display: none; }
+  .ch-card { padding: 6px 10px; gap: 6px; }
+  .listen-btn { min-height: 38px; font-size: 0.95rem; padding: 0 12px; }
+  .coach-panel { padding: 4px 10px; gap: 4px; }
+  .coach-title { font-size: 0.95rem; }
+  .coach-panel .tip { font-size: 0.9rem; }
+  .tile { --t: clamp(26px, 8vh, 44px); border-width: 2.5px; border-radius: 9px; }
+  .tile.small { --t: clamp(22px, 6vh, 32px); }
+  .answer { min-height: 0; }
+  .keyboard { gap: 4px; padding-bottom: 0; }
+  .key-row { gap: 4px; }
+  .key { height: clamp(32px, 9vh, 46px); max-width: 64px; border-radius: 9px; border-width: 2.5px; font-size: 1.2rem; }
+  .key-wide { font-size: 1rem; max-width: 220px; }
+  .ready-btn { min-height: 44px; font-size: 1.1rem; }
+}
+
+/* ---------- Big computer screens ---------- */
+@media (min-width: 1280px) and (min-height: 820px) {
+  .challenge-screen { max-width: 1240px; }
+  .ch-villain .avatar { width: min(40vh, 360px) !important; height: min(40vh, 360px) !important; }
+  .ch-hero .avatar { width: min(30vh, 270px) !important; height: min(30vh, 270px) !important; }
+}

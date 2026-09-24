@@ -13,7 +13,9 @@ export function render(root, ctx) {
   const current = chapters.findIndex((c, i) => isUnlocked(player, profile, i) && !profile.chapters[c.id]?.done && !c.special);
   const camp = campChapter(player, profile);
 
-  const xs = chapters.map((_, i) => (i % 2 === 0 ? 28 : 72) + (i % 4 === 1 ? 4 : i % 4 === 3 ? -4 : 0));
+  // Phones put the stops nearer the edges so labels have room toward the middle.
+  const [left, right] = innerWidth < 600 ? [20, 80] : [28, 72];
+  const xs = chapters.map((_, i) => (i % 2 === 0 ? left : right) + (i % 4 === 1 ? 3 : i % 4 === 3 ? -3 : 0));
   const height = chapters.length * STEP + 60;
   const pathD = xs.map((x, i) => {
     const y = 70 + i * STEP;
@@ -50,7 +52,7 @@ export function render(root, ctx) {
       h('div', { class: 'stop-pattern' }, c.pattern),
       rec?.done ? h('div', { class: 'stars' }, [1, 2, 3].map((n) => h('span', { class: n <= rec.stars ? '' : 'off' }, '⭐'))) : null,
     ),
-    isCurrent ? h('div', { class: 'stop-hero' }, avatar(player.id, { pose: 'wave', size: 84 })) : null);
+    isCurrent ? h('div', { class: 'stop-hero' }, avatar(player.id, { pose: 'wave', size: 110 })) : null);
     return node;
   });
 

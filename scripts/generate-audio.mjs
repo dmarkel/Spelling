@@ -7,20 +7,20 @@ import { existsSync, mkdirSync, writeFileSync, readdirSync, unlinkSync } from 'n
 import path from 'node:path';
 import { ROOT, requireKey, loadEnv, flags, pool, withRetry } from './lib/env.mjs';
 import { collectLines } from './lib/lines.mjs';
-import { SPEAKERS, ACCENT, PACE } from '../data/voices.js';
+import { SPEAKERS, ACCENT, PACE, PACE_SLOW } from '../data/voices.js';
 import { splitDirection } from '../js/engine/text.js';
 
 const OUT = path.join(ROOT, 'assets', 'audio');
 const MANIFEST = path.join(ROOT, 'data', 'audio-manifest.json');
 // Bump VOICE_VERSION whenever voices or delivery change: new file names stop iPads from replaying cached old audio.
-const VOICE_VERSION = 'v2-american-slow';
+const VOICE_VERSION = 'v3-american-slow-words';
 const fileFor = (key) => `${createHash('sha1').update(`${VOICE_VERSION}|${key}`).digest('hex').slice(0, 16)}.mp3`;
 
 function instructionsFor({ who, kind }, direction) {
   const s = SPEAKERS[who] || SPEAKERS.narrator;
+  if (kind === 'word') return `${s.style} ${ACCENT} ${PACE_SLOW} You are giving a spelling test. Say this single word once, with no extra words.`;
+  if (kind === 'letters') return `${s.style} ${ACCENT} ${PACE_SLOW} Spell out these letters one at a time, with a clear pause between each letter. Say "apostrophe" where written.`;
   const base = `${s.style} ${ACCENT} ${PACE}`;
-  if (kind === 'word') return `${base} You are giving a spelling test. Say this single word once, slowly and clearly, with no extra words.`;
-  if (kind === 'letters') return `${base} Spell out these letters one at a time, slowly, with a clear pause between each letter. Say "apostrophe" where written.`;
   return direction ? `${base} Deliver this line ${direction}.` : base;
 }
 
@@ -35,7 +35,7 @@ async function speak(key, line) {
       voice: (SPEAKERS[line.who] || SPEAKERS.narrator).voice,
       input: spoken,
       instructions: instructionsFor(line, direction),
-      speed: line.kind === 'line' ? 0.9 : 0.85,
+      speed: { word: 0.75, letters: 0.8 }[line.kind] ?? 1,
       response_format: 'mp3',
     }),
   });
