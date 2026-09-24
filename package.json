@@ -1,0 +1,11 @@
+{
+  "name": "spelling-quest",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "audio": "node scripts/generate-audio.mjs",
+    "images": "node scripts/generate-images.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}
