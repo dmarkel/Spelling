@@ -17,16 +17,6 @@ Missed words come back in later rounds and in **Training Camp** until they're ma
 
 Open the site on the iPad in Safari, then tap **Share → Add to Home Screen**. It opens full-screen like an app and works offline.
 
-## Grown-ups area
-
-Tap **🔒 Grown-ups** on the start screen. You set a 4-digit PIN the first time. The area shows:
-
-- first-try accuracy, words mastered, streaks, and a 14-day chart
-- **trouble words, with exactly what the child typed**
-- recent rounds and chapter progress
-- **Teacher's List**: add this week's words and they appear on that child's map
-- export/import a backup (progress is saved only on the device)
-
 ## Voices and art
 
 Voices and cartoon art are generated once with OpenAI by scripts that run on a computer. Their output is committed to the repo, so the website never contains an API key. Until they're generated, the game uses the iPad's built-in voice and emoji characters.

@@ -12,7 +12,6 @@ const screens = {
   challenge: () => import('./screens/challenge.js'),
   results: () => import('./screens/results.js'),
   stickers: () => import('./screens/stickers.js'),
-  parent: () => import('./screens/parent.js'),
 };
 
 const backend = (() => {
@@ -61,7 +60,6 @@ async function screenshotRoute() {
   if (player) ctx.setPlayer(player);
   const outcome = { stars: 2, firstTry: 4, total: 6, newStickers: [{ id: 'e1', emoji: '💌', name: 'Mystery Note' }] };
   const params = { chapterId, mode: 'chapter', part: extra === 'outro' || extra === 'lost' ? 'outro' : 'intro', outcome: { ...outcome, passed: extra !== 'lost' }, kid: player };
-  if (screen === 'parent') (await import('./screens/parent.js')).unlockForScreenshots?.();
   await ctx.go(screen, params);
   if (extra === 'miss') {
     const key = (k) => document.dispatchEvent(new KeyboardEvent('keydown', { key: k }));

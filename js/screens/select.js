@@ -28,19 +28,16 @@ export function render(root, ctx) {
     h('div', { class: 'hero-stats' },
       h('span', { class: 'pill' }, '⭐ ', totalStars(prof)),
       prof.streak.count > 1 ? h('span', { class: 'pill' }, '🔥 ', prof.streak.count) : null,
-    ));
+    ),
+    h('span', { class: 'hero-play', 'aria-hidden': 'true' }, '▶ Play'));
   };
 
   root.append(h('section', { class: 'screen select-screen' },
     h('header', { class: 'select-title' },
       h('h1', { class: 'logo' }, h('span', { class: 'logo-a' }, 'Spelling'), ' ', h('span', { class: 'logo-b' }, 'Quest')),
-      h('p', { class: 'tagline' }, 'Who is playing today?'),
+      h('p', { class: 'tagline' }, 'Who is playing today? Tap your card to start!'),
     ),
     h('div', { class: 'hero-row' }, Object.keys(PLAYERS).map(card)),
-    h('button', {
-      class: 'btn btn-ghost parent-link',
-      onclick: () => { sfx.click(); ctx.go('parent'); },
-    }, '🔒 Grown-ups'),
   ));
 
   const hello = () => say(LINES.welcome[0], 'coach');
